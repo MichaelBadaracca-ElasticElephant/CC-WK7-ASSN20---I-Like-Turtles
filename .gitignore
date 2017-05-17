@@ -2,6 +2,10 @@
 Thumbs.db
 ehthumbs.db
 
+#Visual Studio
+.vs
+
+
 # Folder config file
 Desktop.ini
 
@@ -45,3 +49,4 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
