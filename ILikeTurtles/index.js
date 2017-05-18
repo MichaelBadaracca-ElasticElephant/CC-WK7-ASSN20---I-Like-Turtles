@@ -3,6 +3,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var expressSession = require('express-session');
 var mongodb = require('mongodb');
+var ObjectId = require('mongodb').ObjectID;
 
 // global db connection
 // We can get away with this being global because we don't start the server listening until we've set the value of this in the mongo connect callback.
@@ -122,6 +123,73 @@ app.post('/api/register', function(req, res) {
 		res.send(data);
 	});
 });
+
+app.post('/api/buyPizza', function (req, res) {
+
+
+
+
+
+    //update pizza count
+
+    db.collection('turtles').updateOne(
+        {
+            _id: ObjectId(req.body.turtleId)
+            //name: 'Leonerdo'
+        },
+        {
+            //PROBLEM: when I only set one field to be updated, the other feilds are wiped out
+            //QUESTION: what is a good way to make sure all other data that we are not updating stays the same?
+            //numberOfPizzas: 1,
+            //name: "Michaelangelo",
+            //color:"green",
+            //weapon: "Spatula of doom",
+            //submitter: "591cca365e25ff4a542605bb"
+            $inc: {
+                numberOfPizzas: 1
+            }
+        },
+
+        function (err, result) {
+            if (err) {
+                res.status(500);
+                res.send("Internal Server Error");
+                return console.log(err);
+            }
+            //if it is successful, read the number of pizzas and send back in response
+
+            db.collection('turtles').findOne(
+                {
+                    _id: ObjectId(req.body.turtleId)
+                },
+                function (err, turtle) {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    console.log(turtle.numberOfPizzas);
+                    //PROBLEM: using res.send like this is depricated, but when just sending the data, it thought it was a status code
+                    res.send(200,turtle.numberOfPizzas);
+                }
+            );
+        }
+    );
+});
+
+function readNumberofPizzasFromDb(turtleId) {
+    db.collection('turtles').findOne(
+        {
+            _id: ObjectId(turtleId)
+        },
+        function (err, turtle) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(turtle.numberOfPizzas);
+            return turtle.numberOfPizzas;
+        }
+
+    );
+}
 
 // serve files out of the static public folder (e.g. index.html)
 app.use(express.static('public'));
