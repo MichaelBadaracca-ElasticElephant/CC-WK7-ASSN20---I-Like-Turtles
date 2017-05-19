@@ -38,14 +38,18 @@ app.use(expressSession({
 	saveUninitialized: true
 }));
 
+function isUserAuthenticated(req,res,next) {
+    // Check if logged in - if not, return
+    if (!req.session.user) {
+        res.status(403);
+        res.send("forbidden");
+    } else {
+        next();
+    }
+}
+
 // Get all turtles
-app.get('/api/turtles', function(req, res) {
-	// Check if logged in
-	if (!req.session.user) {
-		res.status(403);
-		res.send("forbidden");
-		return;
-	}
+app.get('/api/turtles', isUserAuthenticated, function(req, res) {
 	// return all turtles as a JSON array.
 	db.collection('turtles').find({}).toArray(function(err, data){
 		if (err) {
@@ -59,15 +63,8 @@ app.get('/api/turtles', function(req, res) {
 });
 
 // Post a new turtle
-app.post('/api/newTurtle', function(req, res) {
+app.post('/api/newTurtle', isUserAuthenticated, function(req, res) {
 	// todo: validate input
-	// check if logged in
-	if (!req.session.user) {
-		res.status(403);
-		res.send("forbidden");
-		return;
-	}
-
 	// Add new turtle
 	db.collection('turtles').insertOne({
 		name: req.body.name,
@@ -85,6 +82,7 @@ app.post('/api/newTurtle', function(req, res) {
 		res.send(data);
 	});
 });
+
 
 // Post to login
 app.post('/api/login', function(req, res) {
@@ -126,7 +124,8 @@ app.post('/api/register', function(req, res) {
 });
 
 //Add a pizza to a turtle
-app.post('/api/buyPizza', function (req, res) {
+app.post('/api/buyPizza', isUserAuthenticated, function (req, res) {
+    //update turtle
     db.collection('turtles').updateOne(
         {
             //get turtle by Id
@@ -162,7 +161,7 @@ app.post('/api/buyPizza', function (req, res) {
 });
 
 //Delete a turtle
-app.post('/api/killTurtle/:turtleId', function (req, res) {
+app.post('/api/killTurtle/:turtleId', isUserAuthenticated, function (req, res) {
     var turtleId = req.params.turtleId;
     db.collection('turtles').deleteOne(
         {
