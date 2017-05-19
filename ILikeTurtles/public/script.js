@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-    
-
     /*
         Function to get the turtles from the server
     */
@@ -27,6 +25,8 @@ $(document).ready(function () {
 
     function buildAndDisplayTurtleHtml(turtle) {
         //build turtle html
+            //creates a buy pizza button with a dynamically created Id
+            //creates a delete turtle button with a dynamically created data- attribute storing the turtle id
         var turtleHtml = `<div class="col-md-3">
                                 <div class="turtle">
                                     <h3 class="turtle_name">${turtle.name}</h3>
@@ -38,22 +38,17 @@ $(document).ready(function () {
                                     </span>
                                 </div>
                             </div>`;
-        //display tutle html
+        //display turtle html
         $('#output').append(turtleHtml);
-        //create click listent for newly created button
+        //create click listent for newly created pizza button
         createBuyPizzaClickListener(turtle._id);
-        return turtleHtml;
-
     }
 
     //One approach to click handling - attach a listener to each new buy pizza button that is created
     function createBuyPizzaClickListener(turtleId) {
         $('#' + turtleId).click(function () {
-            console.log(`Clicked button with id: ${turtleId}`);
             $.post('api/buyPizza/', { turtleId: turtleId }, function (data) {
                 //update the number of pizzas
-                console.log(data);
-                console.log()
                 $(`#numPizzas${turtleId}`).text(`Pizzas: ${data}`);
             });
         });

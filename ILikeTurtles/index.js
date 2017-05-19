@@ -73,7 +73,8 @@ app.post('/api/newTurtle', function(req, res) {
 		name: req.body.name,
 		color: req.body.color,
 		weapon: req.body.weapon,
-		submitter: req.session.user._id
+        submitter: req.session.user._id,
+        numberOfPizzas:0
 	}, function(err, data) {
 		if (err) {
 			console.log(err);
@@ -124,23 +125,15 @@ app.post('/api/register', function(req, res) {
 	});
 });
 
+//Add a pizza to a turtle
 app.post('/api/buyPizza', function (req, res) {
-
-    //update pizza count
-
     db.collection('turtles').updateOne(
         {
+            //get turtle by Id
             _id: ObjectId(req.body.turtleId)
-            //name: 'Leonerdo'
         },
         {
-            //PROBLEM: when I only set one field to be updated, the other feilds are wiped out
-            //QUESTION: what is a good way to make sure all other data that we are not updating stays the same?
-            //$set: { numberOfPizzas: 1 },
-            //name: "Michaelangelo",
-            //color:"green",
-            //weapon: "Spatula of doom",
-            //submitter: "591cca365e25ff4a542605bb"
+            //increment pizza count
             $inc: {
                 numberOfPizzas: 1
             }
@@ -153,7 +146,6 @@ app.post('/api/buyPizza', function (req, res) {
                 return console.log(err);
             }
             //if it is successful, read the number of pizzas and send back in response
-
             db.collection('turtles').findOne(
                 {
                     _id: ObjectId(req.body.turtleId)
@@ -162,8 +154,6 @@ app.post('/api/buyPizza', function (req, res) {
                     if (err) {
                         return console.log(err);
                     }
-                    console.log(turtle.numberOfPizzas);
-                    //PROBLEM: using res.send like this is depricated, but when just sending the data, it thought it was a status code
                     res.send(200,turtle.numberOfPizzas);
                 }
             );
@@ -171,6 +161,7 @@ app.post('/api/buyPizza', function (req, res) {
     );
 });
 
+//Delete a turtle
 app.post('/api/killTurtle/:turtleId', function (req, res) {
     var turtleId = req.params.turtleId;
     db.collection('turtles').deleteOne(
@@ -187,22 +178,6 @@ app.post('/api/killTurtle/:turtleId', function (req, res) {
         }
     )
 });
-
-function readNumberofPizzasFromDb(turtleId) {
-    db.collection('turtles').findOne(
-        {
-            _id: ObjectId(turtleId)
-        },
-        function (err, turtle) {
-            if (err) {
-                return console.log(err);
-            }
-            console.log(turtle.numberOfPizzas);
-            return turtle.numberOfPizzas;
-        }
-
-    );
-}
 
 // serve files out of the static public folder (e.g. index.html)
 app.use(express.static('public'));
