@@ -126,10 +126,6 @@ app.post('/api/register', function(req, res) {
 
 app.post('/api/buyPizza', function (req, res) {
 
-
-
-
-
     //update pizza count
 
     db.collection('turtles').updateOne(
@@ -140,7 +136,7 @@ app.post('/api/buyPizza', function (req, res) {
         {
             //PROBLEM: when I only set one field to be updated, the other feilds are wiped out
             //QUESTION: what is a good way to make sure all other data that we are not updating stays the same?
-            //numberOfPizzas: 1,
+            //$set: { numberOfPizzas: 1 },
             //name: "Michaelangelo",
             //color:"green",
             //weapon: "Spatula of doom",
@@ -173,6 +169,23 @@ app.post('/api/buyPizza', function (req, res) {
             );
         }
     );
+});
+
+app.post('/api/killTurtle/:turtleId', function (req, res) {
+    var turtleId = req.params.turtleId;
+    db.collection('turtles').deleteOne(
+        {
+            _id: ObjectId(turtleId)
+        }, function (err, result) {
+            if (err) {
+                res.status(500);
+                res.send("500 - Internal Server Error");
+                console.log(err);
+            }
+            res.status(200);
+            res.send(turtleId);
+        }
+    )
 });
 
 function readNumberofPizzasFromDb(turtleId) {
